@@ -6,14 +6,14 @@
     var fs = require('fs');
 
     module.exports = function (client) {
-        var pngStream = client.getPngStream(),
-            photoIndex = 0;
+        var pngStream = client.getPngStream();
 
         pngStream
             .on('error', console.log)
             .on('data', function (pngBuffer) {
-                var fileName = '/tmp/test-' + photoIndex + '.png';
-                photoIndex++;
+                var now = new Date().getTime(),
+                    fileName = './photos/' + now + '.png';
+
                 fs.writeFile(fileName, pngBuffer, function (err) {
                     if (err) {
                         return console.log(err);
