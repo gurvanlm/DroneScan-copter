@@ -7,7 +7,8 @@
         "ar-drone": "*",
         "keypress": "*",
         "express": "*",
-        "node-uuid": "*"
+        "node-uuid": "*",
+        "netpbm": "*"
     },
     "scripts"     : {
         "test": "echo \"Error: no test specified\" && exit 1"

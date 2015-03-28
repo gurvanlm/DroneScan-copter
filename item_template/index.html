@@ -3,13 +3,13 @@
 	<meta charset="utf-8"/>
 	<title>Viewer</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-	
+
 	<style>canvas { width: 100%; height: 100% }</style>
 </head>
 <body style="margin: 0; padding: 0">
 
 	<style type="text/css">
-	
+
 	<!-- this is for testing non-fullscreen render areas -->
 	#renderArea{
 		position: absolute;
@@ -20,12 +20,12 @@
 		rigt: 100px;
 		bottom: 100px;
 	}
-	
+
 	#renderArea{
 		width: 100%;
 		height: 100%;
 	}
-	
+
 	.info{
 		color:		white;
 		font-weight: bold;
@@ -34,22 +34,22 @@
 					 -1px  1px 1px black,
 					 -1px -1px 1px black;
 	}
-	
+
 	a:hover, a:visited, a:link, a:active{
 		color: #ccccff;
 		text-decoration: none;
 	}
-	
+
 	</style>
-	
+
 <script id="vs" type="x-shader/x-vertex">
 varying vec2 vUv;
 
 void main() {
     vUv = uv;
 
-    gl_Position =   projectionMatrix * 
-                    modelViewMatrix * 
+    gl_Position =   projectionMatrix *
+                    modelViewMatrix *
                     vec4(position,1.0);
 }
 </script>
@@ -64,11 +64,11 @@ uniform sampler2D texture;
 varying vec2 vUv;
 
 void main() {
-    vec4 color = texture2D(texture, vUv); 
-    float depth = texture2D(depthMap, vUv).g; 
+    vec4 color = texture2D(texture, vUv);
+    float depth = texture2D(depthMap, vUv).g;
 	color = color / color.w;
-    gl_FragColor = color; 
-	
+    gl_FragColor = color;
+
 	gl_FragDepthEXT = depth;
 }
 </script>
@@ -85,20 +85,20 @@ document.ontouchmove = function(event){
 	<script src="../libs/other/OrbitControls.js"></script>
 	<script src="../libs/other/stats.min.js"></script>
 	<script src="../libs/other/dat.gui.min.js"></script>
-	
+
 	<script src="../build/js/potree.js"></script>
 	<script src="./js/ProgressBar.js"></script>
-	
+
 	<script src="./model.ply.js"></script>
-	
+
 	<!-- INFOS / STATS -->
 	<div id="lblNumVisibleNodes" class="info" style="position: absolute; left: 10px; top: 80px; width: 400px; color:white"></div>
 	<div id="lblNumVisiblePoints" class="info" style="position: absolute; left: 10px; top: 100px; width: 400px; color:white"></div>
 	<div id="lblMessage" class="info" style="position: absolute; left: 10px; bottom: 0px; width: 400px; color:white"></div>
-	
+
 	<!-- TOOLS -->
 	<div id="tools" style="position: fixed; width: 380px; bottom: 10px; right: 10px; text-align:right;">
-		
+
 		<img src="../resources/icons/earth_controls_1.png" onclick="useEarthControls()"title="Earth Controls"/>
 		<!--<img src="../resources/icons/fps_controls.png" onclick="useFPSControls()"title="Fly Camera"/>
 		-->
@@ -108,11 +108,11 @@ document.ontouchmove = function(event){
 		<img src="../resources/icons/flip_y_z.png" onclick="flipYZ()" title="flip y and z coordinates"/>
 		-->
 	</div>
-	
+
 	<!-- HEADING -->
-	
+
 	<div id="renderArea"></div>
-	
+
 	<script>
 		var pointSize = 1.0 ;
 		var pointCountTarget = sceneProperties.pointLimit;
@@ -123,21 +123,21 @@ document.ontouchmove = function(event){
 		var clipMode = Potree.ClipMode.HIGHLIGHT_INSIDE;
 		var quality = null;
 		var isFlipYZ = false;
-		
+
 		var showStats = false;
 		var showBoundingBox = false;
-		
+
 		var fpControls;
 		var orbitControls;
 		var earthControls;
 		var controls;
-		
+
 		var progressBar = new ProgressBar();
-		
+
 		var pointcloudPath = sceneProperties.path;
-		
+
 		var elRenderArea = document.getElementById("renderArea");
-	
+
 		var gui;
 		var renderer;
 		var camera;
@@ -155,7 +155,7 @@ document.ontouchmove = function(event){
 		var volumeTool;
 		var transformationTool;
 		var referenceFrame;
-		
+
 		function setPointSizeType(value){
 			if(value === "Fixed"){
 				pointSizeType = Potree.PointSizeType.FIXED;
@@ -165,11 +165,11 @@ document.ontouchmove = function(event){
 				pointSizeType = Potree.PointSizeType.ADAPTIVE;
 			}
 		};
-		
+
 		function setQuality(value){
 			quality = value;
 		};
-		
+
 		function setMaterial(value){
 			if(value === "RGB"){
 				pointColorType = Potree.PointColorType.RGB;
@@ -193,7 +193,7 @@ document.ontouchmove = function(event){
 				pointColorType = Potree.PointColorType.POINT_INDEX;
 			}
 		};
-		
+
 		// MOD FAB
 		function animateOpacity(){
 			if (opacity > 0.9){
@@ -204,13 +204,13 @@ document.ontouchmove = function(event){
 			opacity += 0.1;
 			setTimeout(animateOpacity, 100);
 		};
-		
+
 		function initGUI(){
-		
+
 			setPointSizeType(sceneProperties.sizeType);
 			setQuality(sceneProperties.quality);
 			setMaterial(sceneProperties.material);
-		
+
 			// dat.gui
 			// FAB mod
 			setTimeout(animateOpacity, 100);
@@ -218,7 +218,7 @@ document.ontouchmove = function(event){
 			gui = new dat.GUI({
 				height : 5 * 32 - 1
 			});
-			
+
 			params = {
 				"points(m)": pointCountTarget,
 				PointSize: pointSize,
@@ -232,38 +232,38 @@ document.ontouchmove = function(event){
 				"stats": showStats,
 				"BoundingBox": showBoundingBox
 			};
-			
+
 			var pPoints = gui.add(params, 'points(m)', 0, 2);
 			pPoints.onChange(function(value){
 				pointCountTarget = value ;
 			});
-			
+
 			var pPointSize = gui.add(params, 'PointSize', 0, 3);
 			pPointSize.onChange(function(value){
 				pointSize = value;
 			});
-			
+
 			var pOpacity = gui.add(params, 'opacity', 0, 1);
 			pOpacity.onChange(function(value){
 				opacity = value;
 			});
-			
+
 			var pSizeType = gui.add(params, 'SizeType', [ "Fixed", "Attenuated", "Adaptive"]);
 			pSizeType.onChange(function(value){
 				setPointSizeType(value);
 			});
-			
+
 			var options = [];
 			var attributes = pointcloud.pcoGeometry.pointAttributes
 			if(attributes === "LAS" || attributes === "LAZ"){
-				options = [ 
-				"RGB", "Color", "Height", "Intensity", "Intensity Gradient", 
+				options = [
+				"RGB", "Color", "Height", "Intensity", "Intensity Gradient",
 				"Classification", "Return Number", "Source",
 				"Octree Depth"];
 			}else{
 				for(var i = 0; i < attributes.attributes.length; i++){
 					var attribute = attributes.attributes[i];
-					
+
 					if(attribute === PointAttribute.COLOR_PACKED){
 						options.push("RGB");
 					}else if(attribute === PointAttribute.INTENSITY){
@@ -275,20 +275,20 @@ document.ontouchmove = function(event){
 				}
 				options.push("Height");
 			}
-			
+
 			// default material is not available. set material to Height
 			if(options.indexOf(params.Materials) < 0){
 				console.error("Default Material '" + params.Material + "' is not available. Using Height instead");
 				setMaterial("Height");
 				params.Materials = "Height";
 			}
-			
-			
+
+
 			pMaterial = gui.add(params, 'Materials',options);
 			pMaterial.onChange(function(value){
 				setMaterial(value);
 			});
-			
+
 			var qualityOptions = ["Squares", "Circles"];
 			if(Potree.Features.SHADER_INTERPOLATION.isSupported()){
 				qualityOptions.push("Interpolation");
@@ -300,7 +300,7 @@ document.ontouchmove = function(event){
 			pQuality.onChange(function(value){
 				quality = value;
 			});
-			
+
 			var pClipMode = gui.add(params, 'Clip Mode', [ "No Clipping", "Clip Outside", "Highlight Inside"]);
 			pClipMode.onChange(function(value){
 				if(value === "No Clipping"){
@@ -311,17 +311,17 @@ document.ontouchmove = function(event){
 					clipMode = Potree.ClipMode.HIGHLIGHT_INSIDE;
 				}
 			});
-			
+
 			var pSykbox = gui.add(params, 'skybox');
 			pSykbox.onChange(function(value){
 				showSkybox = value;
 			});
-			
+
 			var pStats = gui.add(params, 'stats');
 			pStats.onChange(function(value){
 				showStats = value;
 			});
-			
+
 			var pBoundingBox = gui.add(params, 'BoundingBox');
 			pBoundingBox.onChange(function(value){
 				showBoundingBox = value;
@@ -334,7 +334,7 @@ document.ontouchmove = function(event){
 			stats.domElement.style.margin = '5px';
 			document.body.appendChild( stats.domElement );
 		}
-		
+
 		function initThree(){
 			var fov = 75;
 			var width = elRenderArea.clientWidth;
@@ -342,16 +342,16 @@ document.ontouchmove = function(event){
 			var aspect = width / height;
 			var near = 0.1;
 			var far = 1000000;
-		
+
 			scene = new THREE.Scene();
 			scenePointCloud = new THREE.Scene();
 			sceneBG = new THREE.Scene();
-			
+
 			camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 			//camera = new THREE.OrthographicCamera(-50, 50, 50, -50, 1, 100000);
 			cameraBG = new THREE.Camera();
 			camera.rotation.order = 'ZYX';
-			
+
 			referenceFrame = new THREE.Object3D();
 			scenePointCloud.add(referenceFrame);
 
@@ -359,7 +359,7 @@ document.ontouchmove = function(event){
 			renderer.setSize(width, height);
 			renderer.autoClear = false;
 			elRenderArea.appendChild(renderer.domElement);
-			
+
 			skybox = Potree.utils.loadSkybox("../resources/textures/skybox/");
 
 			// camera and controls
@@ -367,37 +367,38 @@ document.ontouchmove = function(event){
 			camera.rotation.y = -Math.PI / 4;
 			camera.rotation.x = -Math.PI / 6;
 			useOrbitControls();
-			
+
 			// enable frag_depth extension for the interpolation shader, if available
 			renderer.context.getExtension("EXT_frag_depth");
-			
+
 			// load pointcloud
 			POCLoader.load(pointcloudPath, function(geometry){
 				pointcloud = new Potree.PointCloudOctree(geometry);
-				
+
 				pointcloud.material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
 				pointcloud.material.size = pointSize;
 				pointcloud.visiblePointsTarget = pointCountTarget * 1000 * 1000;
-				
+
 				referenceFrame.add(pointcloud);
-				
+
 				referenceFrame.updateMatrixWorld(true);
 				var sg = pointcloud.boundingSphere.clone().applyMatrix4(pointcloud.matrixWorld);
-				
+
 				referenceFrame.position.copy(sg.center).multiplyScalar(-1);
 				referenceFrame.updateMatrixWorld(true);
-				
-				
+
+
+				flipYZ();
 				flipYZ();
 				camera.zoomTo(pointcloud, 1);
-				
-				initGUI();	
 
-				earthControls.pointclouds.push(pointcloud);	
+				initGUI();
+
+				earthControls.pointclouds.push(pointcloud);
 				// MOD FAB
 				//useEarthControls();
 				useOrbitControls();
-				
+
 				if(sceneProperties.cameraPosition){
 					camera.position.set(sceneProperties.cameraPosition[0], sceneProperties.cameraPosition[1], sceneProperties.cameraPosition[2]);
 				}
@@ -405,25 +406,25 @@ document.ontouchmove = function(event){
 					camera.lookAt(new THREE.Vector3(sceneProperties.cameraTarget[0], sceneProperties.cameraTarget[1], sceneProperties.cameraTarget[2]));
 				}
 			});
-			
+
 			var grid = Potree.utils.createGrid(5, 5, 2);
 			scene.add(grid);
-			
+
 			measuringTool = new Potree.MeasuringTool(scenePointCloud, camera, renderer);
 			profileTool = new Potree.ProfileTool(scenePointCloud, camera, renderer);
 			angleTool = new Potree.AngleTool(scenePointCloud, camera, renderer);
 			areaTool = new Potree.AreaTool(scenePointCloud, camera, renderer);
 			volumeTool = new Potree.VolumeTool(scenePointCloud, camera, renderer);
 			transformationTool = new Potree.TransformationTool(scenePointCloud, camera, renderer);
-			
-			
+
+
 			// background
 			// var texture = THREE.ImageUtils.loadTexture( '../resources/textures/background.gif' );
 			var texture = Potree.utils.createBackgroundTexture(512, 512);
-			
+
 			texture.minFilter = texture.magFilter = THREE.NearestFilter;
 			texture.minFilter = texture.magFilter = THREE.LinearFilter;
-			
+
 			var bg = new THREE.Mesh(
 				new THREE.PlaneBufferGeometry(2, 2, 0),
 				new THREE.MeshBasicMaterial({
@@ -434,16 +435,16 @@ document.ontouchmove = function(event){
 			bg.material.depthTest = false;
 			bg.material.depthWrite = false;
 			sceneBG.add(bg);
-			
+
 			earthControls = new THREE.EarthControls(camera, renderer, scenePointCloud);
-			
-			
+
+
 			window.addEventListener( 'keydown', onKeyDown, false );
 		}
-		
+
 		function flipYZ(){
 			isFlipYZ = !isFlipYZ;
-			
+
 			if(isFlipYZ){
 				referenceFrame.matrix.copy(new THREE.Matrix4());
 				referenceFrame.applyMatrix(new THREE.Matrix4().set(
@@ -452,17 +453,17 @@ document.ontouchmove = function(event){
 					0,-1,0,0,
 					0,0,0,1
 				));
-				
+
 			}else{
 				referenceFrame.matrix.copy(new THREE.Matrix4());
 				referenceFrame.applyMatrix(new THREE.Matrix4().set(
 					1,0,0,0,
-					0,1,0,0,
+					0,-1,0,0,
 					0,0,1,0,
 					0,0,0,1
 				));
 			}
-			
+
 			referenceFrame.updateMatrixWorld(true);
 			pointcloud.updateMatrixWorld();
 			var sg = pointcloud.boundingSphere.clone().applyMatrix4(pointcloud.matrixWorld);
@@ -471,32 +472,32 @@ document.ontouchmove = function(event){
 			referenceFrame.position.y -= pointcloud.getWorldPosition().y;
 			referenceFrame.updateMatrixWorld(true);
 		}
-		
+
 		function onKeyDown(event){
 			//console.log(event.keyCode);
-			
+
 			if(event.keyCode === 69){
 				// e pressed
-				
+
 				transformationTool.translate();
 			}else if(event.keyCode === 82){
 				// r pressed
-				
+
 				transformationTool.scale();
 			}else if(event.keyCode === 84){
 				// r pressed
-				
+
 				transformationTool.rotate();
 			}
 		};
-		
+
 		var intensityMax = null;
-		
+
 		function update(){
 			if(pointcloud){
-			
+
 				var bbWorld = Potree.utils.computeTransformedBoundingBox(pointcloud.boundingBox, pointcloud.matrixWorld);
-					
+
 				if(!intensityMax){
 					if(pointcloud.pcoGeometry.root.loaded){
 						var attributes = pointcloud.pcoGeometry.root.geometry.attributes;
@@ -506,7 +507,7 @@ document.ontouchmove = function(event){
 							for(var i = 0; i < array.length; i++){
 								max = Math.max(array[i]);
 							}
-							
+
 							if(max <= 1){
 								intensityMax = 1;
 							}else if(max <= 256){
@@ -517,7 +518,7 @@ document.ontouchmove = function(event){
 						}
 					}
 				}
-					
+
 				pointcloud.material.clipMode = clipMode;
 				pointcloud.material.heightMin = bbWorld.min.y;
 				pointcloud.material.heightMax = bbWorld.max.y;
@@ -526,14 +527,14 @@ document.ontouchmove = function(event){
 				pointcloud.showBoundingBox = showBoundingBox;
 				pointcloud.update(camera, renderer);
 			}
-			
+
 			if(stats && showStats){
 				document.getElementById("lblNumVisibleNodes").style.display = "";
 			    document.getElementById("lblNumVisiblePoints").style.display = "";
 			    stats.domElement.style.display = "";
-			
+
 				stats.update();
-			
+
 				if(pointcloud){
 					document.getElementById("lblNumVisibleNodes").innerHTML = "visible nodes: " + pointcloud.numVisibleNodes;
 					document.getElementById("lblNumVisiblePoints").innerHTML = "visible points: " + Potree.utils.addCommas(pointcloud.numVisiblePoints);
@@ -543,16 +544,16 @@ document.ontouchmove = function(event){
 			    document.getElementById("lblNumVisiblePoints").style.display = "none";
 			    stats.domElement.style.display = "none";
 			}
-			
+
 			controls.update(clock.getDelta());
 
 			// update progress bar
 			if(pointcloud){
 				var progress = pointcloud.visibleNodes.length / pointcloud.visibleGeometry.length;
-				
+
 				progressBar.progress = progress;
 				progressBar.message = "loading: " + pointcloud.visibleNodes.length + " / " + pointcloud.visibleGeometry.length;
-				
+
 				if(progress === 1){
 					progressBar.hide();
 				}else if(progress < 1){
@@ -562,17 +563,17 @@ document.ontouchmove = function(event){
 				progressBar.show();
 				progressBar.message = "loading metadata";
 			}
-			
+
 			volumeTool.update();
 			transformationTool.update();
 			profileTool.update();
-			
-			
+
+
 			var clipBoxes = [];
-			
+
 			for(var i = 0; i < profileTool.profiles.length; i++){
 				var profile = profileTool.profiles[i];
-				
+
 				for(var j = 0; j < profile.boxes.length; j++){
 					var box = profile.boxes[j];
 					box.updateMatrixWorld();
@@ -580,35 +581,35 @@ document.ontouchmove = function(event){
 					clipBoxes.push(boxInverse);
 				}
 			}
-			
+
 			for(var i = 0; i < volumeTool.volumes.length; i++){
 				var volume = volumeTool.volumes[i];
-				
+
 				if(volume.clip){
 					volume.updateMatrixWorld();
 					var boxInverse = new THREE.Matrix4().getInverse(volume.matrixWorld);
-				
+
 					clipBoxes.push(boxInverse);
 				}
 			}
-			
+
 			if(pointcloud){
 				pointcloud.material.setClipBoxes(clipBoxes);
 			}
-			
+
 		}
-		
+
 		function useEarthControls(){
 			if(controls){
 				controls.enabled = false;
 			}
-	
+
 			controls = earthControls;
 			controls.enabled = true;
-			
+
 			controls.moveSpeed = pointcloud.boundingSphere.radius / 2;
 		}
-		
+
 		function useFPSControls(){
 			if(controls){
 				controls.enabled = false;
@@ -616,13 +617,13 @@ document.ontouchmove = function(event){
 			if(!fpControls){
 				fpControls = new THREE.FirstPersonControls(camera, renderer.domElement);
 			}
-	
+
 			controls = fpControls;
 			controls.enabled = true;
-			
+
 			controls.moveSpeed = pointcloud.boundingSphere.radius / 2;
 		}
-		
+
 		function useOrbitControls(){
 			if(controls){
 				controls.enabled = false;
@@ -630,27 +631,27 @@ document.ontouchmove = function(event){
 			if(!orbitControls){
 				orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
 			}
-			
+
 			controls = orbitControls;
 			controls.enabled = true;
-			
+
 			if(pointcloud){
 				controls.target.copy(pointcloud.boundingSphere.center.clone().applyMatrix4(pointcloud.matrixWorld));
 			}
 		}
-		
+
 		function render(){
 			// resize
 			var width = elRenderArea.clientWidth;
 			var height = elRenderArea.clientHeight;
 			var aspect = width / height;
-			
+
 			camera.aspect = aspect;
 			camera.updateProjectionMatrix();
-			
+
 			renderer.setSize(width, height);
-			
-		
+
+
 			// render skybox
 			if(showSkybox){
 				skybox.camera.rotation.copy(camera.rotation);
@@ -658,14 +659,14 @@ document.ontouchmove = function(event){
 			}else{
 				renderer.render(sceneBG, cameraBG);
 			}
-			
+
 			if(pointcloud){
 				if(pointcloud.originalMaterial){
 					pointcloud.material = pointcloud.originalMaterial;
 				}
-				
+
 				var bbWorld = Potree.utils.computeTransformedBoundingBox(pointcloud.boundingBox, pointcloud.matrixWorld);
-				
+
 				pointcloud.material.size = pointSize;
 				pointcloud.visiblePointsTarget = pointCountTarget * 1000 * 1000;
 				pointcloud.material.opacity = opacity;
@@ -675,60 +676,60 @@ document.ontouchmove = function(event){
 				pointcloud.material.interpolate = (quality === "Interpolation");
 				pointcloud.material.weighted = false;
 			}
-			
+
 			// render scene
 			renderer.render(scene, camera);
 			renderer.render(scenePointCloud, camera);
-			
+
 			profileTool.render();
 			volumeTool.render();
-			
+
 			renderer.clearDepth();
 			measuringTool.render();
 			angleTool.render();
 			areaTool.render();
 			transformationTool.render();
 		}
-		
+
 		// high quality rendering using splats
-		// 
-		var rtDepth = new THREE.WebGLRenderTarget( 1024, 1024, { 
-			minFilter: THREE.NearestFilter, 
-			magFilter: THREE.NearestFilter, 
-			format: THREE.RGBAFormat, 
+		//
+		var rtDepth = new THREE.WebGLRenderTarget( 1024, 1024, {
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat,
 			type: THREE.FloatType
 		} );
-		var rtNormalize = new THREE.WebGLRenderTarget( 1024, 1024, { 
-			minFilter: THREE.LinearFilter, 
-			magFilter: THREE.NearestFilter, 
-			format: THREE.RGBAFormat, 
+		var rtNormalize = new THREE.WebGLRenderTarget( 1024, 1024, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.NearestFilter,
+			format: THREE.RGBAFormat,
 			type: THREE.FloatType
 		} );
-		
+
 		var sceneNormalize;
-		
+
 		var depthMaterial, weightedMaterial;
-		
+
 		// render with splats
 		function renderHighQuality(){
-		
+
 			if(!sceneNormalize){
 				sceneNormalize = new THREE.Scene();
-								
+
 				var vsNormalize = document.getElementById('vs').innerHTML;
 				var fsNormalize = document.getElementById('fs').innerHTML;
-				
+
 				var uniformsNormalize = {
 					depthMap: { type: "t", value: rtDepth },
 					texture: { type: "t", value: rtNormalize }
 				};
-				
+
 				var materialNormalize = new THREE.ShaderMaterial({
 					uniforms: uniformsNormalize,
 					vertexShader: vsNormalize,
 					fragmentShader: fsNormalize
 				});
-				
+
 				var quad = new THREE.Mesh( new THREE.PlaneBufferGeometry(2, 2, 0), materialNormalize);
 				quad.material.depthTest = true;
 				quad.material.depthWrite = true;
@@ -736,42 +737,42 @@ document.ontouchmove = function(event){
 				sceneNormalize.add(quad);
 				sceneNormalize.screenQuad = quad;
 			}
-			
+
 			// resize
 			if(rtDepth){
 				if(rtDepth.width != elRenderArea.clientWidth || rtDepth.height != elRenderArea.clientHeight){
 					rtDepth.dispose();
 					rtNormalize.dispose();
-					
-					rtDepth = new THREE.WebGLRenderTarget( 1024, 1024, { 
-						minFilter: THREE.NearestFilter, 
-						magFilter: THREE.NearestFilter, 
-						format: THREE.RGBAFormat, 
+
+					rtDepth = new THREE.WebGLRenderTarget( 1024, 1024, {
+						minFilter: THREE.NearestFilter,
+						magFilter: THREE.NearestFilter,
+						format: THREE.RGBAFormat,
 						type: THREE.FloatType
 					} );
-					rtNormalize = new THREE.WebGLRenderTarget( 1024, 1024, { 
-						minFilter: THREE.LinearFilter, 
-						magFilter: THREE.NearestFilter, 
-						format: THREE.RGBAFormat, 
+					rtNormalize = new THREE.WebGLRenderTarget( 1024, 1024, {
+						minFilter: THREE.LinearFilter,
+						magFilter: THREE.NearestFilter,
+						format: THREE.RGBAFormat,
 						type: THREE.FloatType
 					} );
-					
+
 					sceneNormalize.screenQuad.material.uniforms.depthMap.value = rtDepth;
 					sceneNormalize.screenQuad.material.uniforms.texture.value = rtNormalize;
 				}
 			}
-			
+
 			var width = elRenderArea.clientWidth;
 			var height = elRenderArea.clientHeight;
 			var aspect = width / height;
-			
+
 			camera.aspect = aspect;
 			camera.updateProjectionMatrix();
-			
+
 			renderer.setSize(width, height);
 			rtDepth.setSize(width, height);
 			rtNormalize.setSize(width, height);
-			
+
 
 			renderer.clear();
 			//renderer.render(sceneBG, cameraBG);
@@ -783,18 +784,18 @@ document.ontouchmove = function(event){
 				renderer.render(sceneBG, cameraBG);
 			}
 			renderer.render(scene, camera);
-			
+
 			if(pointcloud){
 				if(!weightedMaterial){
 					pointcloud.originalMaterial = pointcloud.material;
 					depthMaterial = new Potree.PointCloudMaterial();
 					weightedMaterial = new Potree.PointCloudMaterial();
 				}
-				
+
 				pointcloud.material = depthMaterial;
-				
+
 				var bbWorld = Potree.utils.computeTransformedBoundingBox(pointcloud.boundingBox, pointcloud.matrixWorld);
-				
+
 				// get rid of this
 				pointcloud.material.size = pointSize;
 				pointcloud.visiblePointsTarget = pointCountTarget * 1000 * 1000;
@@ -804,23 +805,23 @@ document.ontouchmove = function(event){
 				pointcloud.material.pointShape = Potree.PointShape.CIRCLE;
 				pointcloud.material.interpolate = (quality === "Interpolate");
 				pointcloud.material.weighted = false;
-				
+
 				pointcloud.material.minSize = 2;
 				pointcloud.material.screenWidth = width;
 				pointcloud.material.screenHeight = height;
-			
+
 				pointcloud.update(camera, renderer);
-				
+
 				renderer.clearTarget( rtDepth, true, true, true );
 				renderer.clearTarget( rtNormalize, true, true, true );
-				
+
 				var origType = pointcloud.material.pointColorType;
 				renderer.render(scenePointCloud, camera, rtDepth);
-				
+
 				pointcloud.material = weightedMaterial;
-				
-				
-				
+
+
+
 				// get rid of this
 				pointcloud.material.size = pointSize;
 				pointcloud.visiblePointsTarget = pointCountTarget * 1000 * 1000;
@@ -830,49 +831,49 @@ document.ontouchmove = function(event){
 				pointcloud.material.pointShape = Potree.PointShape.CIRCLE;
 				pointcloud.material.interpolate = (quality === "Interpolation");
 				pointcloud.material.weighted = true;
-				
+
 				pointcloud.material.depthMap = rtDepth;
 				pointcloud.material.blendDepth = Math.min(pointcloud.material.spacing, 20);
 				pointcloud.update(camera, renderer);
 				renderer.render(scenePointCloud, camera, rtNormalize);
-				
-			
+
+
 			    volumeTool.render();
 				profileTool.render();
 				renderer.render(sceneNormalize, cameraBG);
-				
-				
+
+
 				renderer.clearDepth();
 				measuringTool.render();
 				angleTool.render();
 				areaTool.render();
 				transformationTool.render();
-					
+
 			}
-		
-		
+
+
 		}
-		
+
 		function loop() {
 			requestAnimationFrame(loop);
-			
+
 			update();
-			
+
 			if(quality === "Splats"){
 				renderHighQuality();
 			}else{
 				render();
 			}
-			
+
 		};
-		
-		
-		
+
+
+
 		initThree();
 		//initGUI();
 		loop();
-		
+
 	</script>
-	
+
 </body>
 </html>
