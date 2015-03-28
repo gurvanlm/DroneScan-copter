@@ -1,0 +1,32 @@
+{
+    "name"        : "DroneScan-copter",
+    "version"     : "1.0.0",
+    "description" : "DroneScan-copter server",
+    "main"        : "index.js",
+    "dependencies": {
+        "ar-drone": "*"
+    },
+    "scripts"     : {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository"  : {
+        "type": "git",
+        "url" : "https://github.com/fhacktory/DroneScan-copter.git"
+    },
+    "keywords"    : [
+        "drone",
+        "copter",
+        "scan",
+        "3D",
+        "buildings",
+        "objects",
+        "object",
+        "building"
+    ],
+    "author"      : "DroneScan team",
+    "license"     : "ISC",
+    "bugs"        : {
+        "url": "https://github.com/fhacktory/DroneScan-copter/issues"
+    },
+    "homepage"    : "https://github.com/fhacktory/DroneScan-copter"
+}
