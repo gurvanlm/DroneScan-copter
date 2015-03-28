@@ -8,7 +8,7 @@
         move = require('./move'),
         capture = require('./capture'),
         takeoffNland = require('./takeoffNland'),
-        totalPhoto = 8;
+        totalPhoto = 36;
 
     var takeoffOk = false;
     var captureReady = false;
@@ -45,21 +45,6 @@
             };
 
             goNext();
-
-            /*move(totalPhoto, function (err, position) {
-                console.log('MOVED TO POSITION', position);
-
-                capture.capture(position, function(err) {
-
-                    if(position === totalPhoto - 1) {
-
-                        takeoffNland.land(function() {
-                            console.log('COMPLETE');
-                            process.exit(0);
-                        });
-                    }
-                });
-            });*/
         }
     };
 

@@ -11,12 +11,12 @@ service.land = function(cb) {
 };
 
 service.takeoff = function(cb) {
-    //client.takeoff();
+    client.takeoff();
     service.isStopped = false;
 
     setTimeout(function() {
         cb(null);
-    }, 500);
+    }, 5000);
 };
 
 keypress(process.stdin);

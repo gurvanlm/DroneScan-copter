@@ -58,50 +58,72 @@ var getPoints = function(total) {
 
 var totalPhoto;
 var positions;
+var initPosition = {x: 0.5, y: 0.5};
+var previousPosition = {x: 0.5, y: 0.5};
+var totalDuration = 600;
+var power = 0.04;
 
 module.exports = {
     init: function(total) {
         totalPhoto = total;
 
-        //positions = getPoints();
+        positions = getPoints();
+        console.log('positions', positions);
     },
 
     gotoPosition: function(position, cb) {
         console.log('GOTO POSITION', position);
 
-        setTimeout(function() {
-            cb();
-        }, 300);
+        var target = {
+            x: positions[position].x - previousPosition.x,
+            y: positions[position].y - previousPosition.y
+        };
+
+        previousPosition.x = target.x;
+        previousPosition.y = target.y;
+
+        client
+            .after(0, function() {
+                this.front(power * target.y);
+                this.left(power * target.x);
+                //console.log('target', target);
+            }).after(totalDuration, function() {
+                this.stop();
+
+                setTimeout(function() {
+                    cb();
+                }, totalDuration);
+            });
 
     }
 };
 
 
 /*function(total, cb) {
-    var position = 0;
+ var position = 0;
 
-    var points = getPoints();
+ var points = getPoints();
 
-    //console.log('points', points);
+ //console.log('points', points);
 
-    // take first picture
-    var move = function() {
+ // take first picture
+ var move = function() {
 
-        if(takeoffNland.isStopped) {
-            cb('ALERT STOPPED');
+ if(takeoffNland.isStopped) {
+ cb('ALERT STOPPED');
 
-        } else {
-            console.log('ICI', position);
-            cb(null, position);
+ } else {
+ console.log('ICI', position);
+ cb(null, position);
 
-            setTimeout(function() {
-                position++;
-                if(position < total) {
-                    move();
-                }
-            }, 300);
-        }
-    };
+ setTimeout(function() {
+ position++;
+ if(position < total) {
+ move();
+ }
+ }, 300);
+ }
+ };
 
-    move();
-};*/
+ move();
+ };*/
