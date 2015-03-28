@@ -30,16 +30,23 @@
                 return;
             }
 
-            child = exec('VisualSFM sfm+pmvsZ ' + imgFolder + 'D:\\fHacktory\\exports\\'+id,
+            var renderPlyCmd = 'VisualSFM sfm+pmvsZ ' + imgFolder + ' D:\\fHacktory\\exports\\' + id;
+
+            console.log("Render ply cmd : " + renderPlyCmd);
+
+            child = exec(renderPlyCmd,
                 function (error, stdout, stderr) {
 
-                    callback();
+
 
                     console.log('stdout: ' + stdout);
                     console.log('stderr: ' + stderr);
                     if (error !== null) {
                         console.log('exec error: ' + error);
+                    }else {
+                        callback();
                     }
+
             })
 
         },
@@ -70,6 +77,9 @@
 
 
                     var path = 'D:\\fHacktory\\server\\'+id+'\\examples\\' ;
+
+
+                    fs.createReadStream('template\\index.html').pipe(fs.createWriteStream(path+ "index.html"));
 
                     fs.rename(path+ ""+ id+'.0.ply.js',path + "model.ply.js",callback);
                 }

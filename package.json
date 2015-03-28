@@ -6,7 +6,8 @@
     "dependencies": {
         "ar-drone": "*",
         "keypress": "*",
-        "express": "*"
+        "express": "*",
+        "node-uuid": "*"
     },
     "scripts"     : {
         "test": "echo \"Error: no test specified\" && exit 1"
