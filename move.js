@@ -64,7 +64,7 @@ module.exports = function(client, total, cb) {
             if(position < total) {
                 move();
             }
-        }, 100);
+        }, 1000);
     };
 
     move();

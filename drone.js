@@ -4,9 +4,7 @@
     'use strict';
 
     var arDrone = require('ar-drone'),
-        client = arDrone.createClient({
-            frameRate: 0.5
-        });
+        client = arDrone.createClient();
         
     module.exports = client;
 
