@@ -3,25 +3,27 @@
 (function () {
     'use strict';
 
-    var fs = require('fs');
+    var fs = require('fs'),
+        client = require('./drone'),
+        pngStream = client.getPngStream(),
+        pngImage;
 
-    module.exports = function (client) {
-        var pngStream = client.getPngStream();
+    pngStream
+        .on('error', console.log)
+        .on('data', function (pngBuffer) {
+            var pngImage = pngBuffer;
 
-        pngStream
-            .on('error', console.log)
-            .on('data', function (pngBuffer) {
-                var now = new Date().getTime(),
-                    fileName = './photos/' + now + '.png';
+        });
 
-                fs.writeFile(fileName, pngBuffer, function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
+    module.exports = function (number) {
+        var fileName = './photos/' + number + '.png';
 
-                    console.log('Saving photo ' + fileName);
-                });
-            });
+        fs.writeFile(fileName, pngImage, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log('Saving photo ' + fileName);
+        });
     };
 
 
