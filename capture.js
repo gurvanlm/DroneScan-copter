@@ -5,7 +5,8 @@
 
     var fs = require('fs'),
         now = new Date().getTime(),
-        dir = './capture-' + now + '/',
+        capturesFolder = 'captures',
+        dir = './captures/capture-' + now + '/',
         client = require('./drone'),
         pngStream = client.getPngStream(),
         pngImage;
@@ -13,6 +14,10 @@
     module.exports = {
         init: function (callback) {
             var receivingPictures = false;
+
+            if (!fs.existsSync(capturesFolder)) {
+                fs.mkdirSync(capturesFolder);
+            }
 
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir);
@@ -29,7 +34,7 @@
                     }
                 });
         },
-        getCatureFolder: function() {
+        getCaptureFolder: function() {
             return dir;
         },
         capture: function (number, callback) {

@@ -1,4 +1,6 @@
 var fs = require('fs');
+var client = require('./drone');
+var takeoffNland = require('./takeoffNland');
 
 /*client
  .after(5000, function() {
@@ -21,51 +23,85 @@ var fs = require('fs');
  });
  });*/
 
+var normalize = function(point, scale) {
+    var norm = Math.sqrt(point.x * point.x + point.y * point.y);
+    if(norm != 0) { // as3 return 0,0 for a point of zero length
+        point.x = scale * point.x / norm;
+        point.y = scale * point.y / norm;
+    }
+};
 
-var getPoints = function() {
+var getPoints = function(total) {
 
-    /*var pts = [];
+    var pts = [];
     var rad = 0.5;
     var center = {
         x: .5,
         y: .5
     };
 
-    for (var i = 0; i <= 36; i++) {
-        var a = i * 10 * Math.PI / 180;
-        var p = new L.Point(Math.cos(a), Math.sin(a));
-        this.normalize(p, rad);
-        p = p._add({x: center.x, y: center.y});
+    for (var i = 0; i <= 360; i++) {
+        var a = i * Math.PI / 180;
+
+        var p = {
+            x: Math.cos(a),
+            y: Math.sin(a)
+        };
+
+        normalize(p, rad);
+        p.x = p.x + center.x;
+        p.y = p.y + center.y;
         pts.push(p);
     }
-
-
-    normalize: function(point, scale) {
-        var norm = Math.sqrt(point.x * point.x + point.y * point.y);
-        if(norm != 0) { // as3 return 0,0 for a point of zero length
-            point.x = scale * point.x / norm;
-            point.y = scale * point.y / norm;
-        }
-    }*/
-
+    return pts;
 };
 
-module.exports = function(client, total, cb) {
+var totalPhoto;
+var positions;
+
+module.exports = {
+    init: function(total) {
+        totalPhoto = total;
+
+        //positions = getPoints();
+    },
+
+    gotoPosition: function(position, cb) {
+        console.log('GOTO POSITION', position);
+
+        setTimeout(function() {
+            cb();
+        }, 300);
+
+    }
+};
+
+
+/*function(total, cb) {
     var position = 0;
 
-    //client.takeoff();
+    var points = getPoints();
+
+    //console.log('points', points);
 
     // take first picture
     var move = function() {
-        cb(null, position);
 
-        setTimeout(function() {
-            position++;
-            if(position < total) {
-                move();
-            }
-        }, 1000);
+        if(takeoffNland.isStopped) {
+            cb('ALERT STOPPED');
+
+        } else {
+            console.log('ICI', position);
+            cb(null, position);
+
+            setTimeout(function() {
+                position++;
+                if(position < total) {
+                    move();
+                }
+            }, 300);
+        }
     };
 
     move();
-};
+};*/
