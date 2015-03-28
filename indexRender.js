@@ -4,11 +4,20 @@
     'use strict';
 
     var img2ply = require('./img2ply'),
-        imgFolder = "D:\\nescafe\\photos";
+        imgFolder = "D:\\nescafe\\photos",
+        objectID =  "1111";
 
-    img2ply.render3d(imgFolder, "1111", function(){
+    img2ply.renderPLY(imgFolder, objectID, true, function(){
 
-        console.log("finished")
+        console.log("renderPLY finished");
+
+        img2ply.generateWebPage(objectID, function(){
+
+
+            console.log("generateWebPage finished");
+
+
+        })
 
     });
 
