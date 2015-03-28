@@ -4,9 +4,9 @@
     'use strict';
 
     var fs = require('fs'),
-        dir = './photos',
-        client = require('./drone'),
         now = new Date().getTime(),
+        dir = './capture-' + now + '/',
+        client = require('./drone'),
         pngStream = client.getPngStream(),
         pngImage;
 
@@ -29,8 +29,11 @@
                     }
                 });
         },
+        getCatureFolder: function() {
+            return dir;
+        },
         capture: function (number, callback) {
-            var fileName = dir + '/capture-' + now + '-'+ number + '.png';
+            var fileName = dir + number + '.png';
 
             fs.writeFile(fileName, pngImage, function (err) {
                 if (err) {
