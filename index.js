@@ -12,7 +12,11 @@
     capture.init(function () {
 
         move(client, total, function (err, position) {
-            capture.capture(position);
+            capture.capture(position, function(err) {
+                if(!err) {
+                    console.log('Picture taken callback');
+                }
+            });
         });
 
     });
