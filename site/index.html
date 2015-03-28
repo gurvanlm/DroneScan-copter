@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	
+	<title>Drone 3D Scanner</title>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	
+	<link rel="stylesheet" href="main.css">
+
+	<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>-->
+	<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+	
+	<link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+	
+	<style type="text/css">
+		
+		#slider-div {
+		  left: 0;
+		  position: absolute;
+		  top: 0;
+		  height: 100%;
+		}
+		.library-image {
+			height: 305px; 
+			width: 305px; 
+			transform: scale(0.55);
+			border-radius: 50%; 
+			overflow: hidden; 
+			background-color: transparent; 
+			background-size: cover; 
+			background-position: 50% 50%;
+		}
+		.library-image-container {
+			text-align: center;
+			display: inline-block; 
+			overflow: hidden; 
+			width: 305px;
+		}
+	</style>
+</head>
+<body>
+	<div id="page-container">
+		<header>
+			<nav class="cf">
+			<div id="header-left-nav">
+				<h1 id="logo">
+					<a class="level1"tabindex="-1" href="/"><i class="ps-sq-icon">&nbsp;</i></a><a class="ps-sq-text"href="/">drone 3D scanner</a>
+				</h1>
+			</div>
+
+			<div id="header-right-nav">
+				<h2 class="cf">
+					<a class="level1"href="create.html">créer</a>
+				</h2>
+				   
+			</div>
+		</nav>
+		</header>
+	</div>
+	<div id="bg-image">
+	<!--
+		<div id="bg-image1" style="display: block; opacity: 1; background-image: url(https://cdn2.ps1.photosynth.net/media/77af1b81-1eac-4070-99ea-ebc78799eaa1/packet/thumbs/default/bg.jpg);"></div>
+		-->
+	</div>
+	<div id="page-header">
+		<h2>mes captures 3D</h2>		
+	</div>
+	<div id="slider-div" style="position: absolute; width: 100%; left: 0;top: 0;">
+		<div id="slide-div-content" style="position: relative; overflow: hidden; width: 100%; height: 100%;padding-top: 130px;">
+			
+		</div>
+	</div>
+	
+	<script type="text/javascript">
+		$.ajax({
+		  url: "descriptor.json"
+		}).done(function( items ) {
+			var container = $("#slide-div-content");
+			for (var i = 0, l = items.length; i<l; i++){
+				var item = items[i];
+				var itemId = item.id;
+				// https://cdn2.ps1.photosynth.net/media/77af1b81-1eac-4070-99ea-ebc78799eaa1/packet/thumbs/default/0.jpg
+				var tpl = '<div class="library-image-container">' +
+				'<div class="library-image" style="background-image: url(/server/' + itemId + '/preview.jpg);"></div>' + 
+				'<h3>' + item.name + '</h3>' +
+				'</div>';
+				container.append($(tpl));
+			}
+		  });
+	</script>
+</body>
+</html>

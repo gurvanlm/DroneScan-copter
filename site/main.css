@@ -1,0 +1,123 @@
+body {
+	font-family: 'Lato', sans-serif;
+	 background: url(http://subtlepatterns.com/patterns/escheresque_ste.png);
+}
+html, body {
+	height: 100%;
+	width: 100%;
+}
+a:link, a:active, a:visited, a:hover {
+  color: #80ffc5;
+  text-decoration: none;
+}
+a:link.level1, a:active.level1, a:visited.level1, a:hover.level1, a:link .level1, a:active .level1, a:visited .level1, a:hover .level1 {
+  color: #fff;
+}
+h1, h2, h3, h4, h5, h6, button, input, label, textarea, p {
+  color: #fff;
+}
+#header-right-nav>h2>a, #header-right-nav>div>a {
+  float: right;
+  font-size: 120%;
+  text-align: right;
+}
+#page-container {
+  padding-bottom: 0;
+}
+#page-container {
+  padding: 15px 25px 25px;
+}
+header {
+  height: 43px;
+  position: relative;
+}
+header>nav {
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 10;
+}
+#header-left-nav {
+  float: left;
+}
+#header-right-nav {
+  float: right;
+  text-align: right;
+}
+#logo {
+  display: inline-block;
+  font-size: 135%;
+  line-height: 41px;
+}
+#logo>a {
+  display: inline-block;
+  height: 43px;
+}
+#logo .ps-sq-text {
+  margin: 0 8px 0 0;
+  font-size: 40px;
+  line-height: 46px;
+    vertical-align: bottom;
+}
+#logo i {
+  background: url("logo.png") no-repeat;
+  display: inline-block;
+  height: 50px;
+  margin-right: 11px;
+  width: 50px;
+}
+#header-right-nav>h2, #header-right-nav>div {
+  display: inline-block;
+  font-size: inherit;
+  line-height: 41px;
+  margin: 0 30px 0 0;
+}
+#bg-image {
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+#bg-image div {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: cover;
+}
+#page-header {
+  margin: 0 0 0 82px;
+  position: relative;
+  z-index: 2;
+}
+#page-header h2 {
+  margin-right: 105px;
+}
+#page-header h2 {
+  font-size: 300%;
+  white-space: nowrap;
+}
+h2 {
+  font-size: 400%;
+  line-height: 140%;
+  margin: 10px 0;
+}
+
+.btn-primary  {
+	background-image: none;
+	background-color: #00B362;
+	border-color: #005B32;
+}
+.btn-primary, .btn-primary:active {
+	background-image: none;
+	background-color: #00B362;
+	border-color: #005B32;
+}
+.btn-primary:hover, .btn-primary:focus{
+	background-color: #005B32;
+	border-color: #005B32;
+}
