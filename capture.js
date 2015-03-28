@@ -28,14 +28,16 @@
                     }
                 });
         },
-        capture: function (number) {
+        capture: function (number, callback) {
             var fileName = dir + number + '.png';
 
             fs.writeFile(fileName, pngImage, function (err) {
                 if (err) {
-                    return console.log(err);
+                     console.log(err);
+                    return callback(err);
                 }
                 console.log('Saving picture ' + fileName);
+                return callback();
             });
         }
     };
