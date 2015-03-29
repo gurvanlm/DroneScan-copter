@@ -5,6 +5,7 @@
     var fs = require('fs');
     var express = require('express');
     var convert = require('netpbm').convert;
+    var gm = require('gm');
     var uuid = require("node-uuid");
 
     var child;
@@ -19,6 +20,65 @@
 
     var user = 'dupont';
 
+
+
+
+    function pngToJpg(folder, callback){
+
+        var imgFolder = folder;
+        var files = fs.readdirSync(imgFolder);
+
+        var pngFiles = [];
+        var countPng = 0;
+
+        for (var index = 0; index < files.length; index++ ) {
+            var file = files[index];
+            if (file[0] !== '.') {
+                var filePath = imgFolder + '\\' + file;
+                if(filePath.substr(-3) == "png" || filePath.substr(-3) == "png"){
+
+
+                   // filePath = "..\\..\\test\\"+file;
+                    pngFiles.push(filePath);
+
+                }
+            }
+        }
+
+
+        function tryCallBack(){
+            if(countPng == pngFiles.length){
+                callback();
+            }
+        }
+
+        for(var pngIndex=0; pngIndex <pngFiles.length; pngIndex++){
+
+            var pngFilePath = pngFiles[pngIndex];
+
+            var s = pngFilePath.replace("png","jpg");
+            gm(pngFilePath).write(s, function(err){
+
+                if (err) {
+                    console.log(err);
+                }
+
+                countPng++;
+                tryCallBack();
+
+            });
+        }
+
+
+
+
+
+
+    }
+
+
+
+
     function render(imgFolder, id, user, projectName, skipRender, callback){
 
         if(skipRender){
@@ -26,24 +86,27 @@
             return;
         }
 
+        pngToJpg(imgFolder, function(){
+            var renderPlyCmd = 'VisualSFM sfm+pmvs ' + imgFolder + ' ' + exportsPath + '\\' + id;
 
-        var renderPlyCmd = 'VisualSFM sfm+pmvs ' + imgFolder + ' ' + exportsPath + '\\' + id;
+            console.log("Render ply cmd : " + renderPlyCmd);
 
-        console.log("Render ply cmd : " + renderPlyCmd);
+            child = exec(renderPlyCmd,
+                {maxBuffer: 1024 * 500},
+                function (error, stdout, stderr) {
 
-        child = exec(renderPlyCmd,
-            {maxBuffer: 1024 * 500},
-            function (error, stdout, stderr) {
+                    console.log('stdout: ' + stdout);
+                    console.log('stderr: ' + stderr);
+                    if (error !== null) {
+                        console.log('exec error: ' + error);
+                    }else {
+                        generateWebPage(imgFolder, id, user, projectName, callback);
+                    }
 
-                console.log('stdout: ' + stdout);
-                console.log('stderr: ' + stderr);
-                if (error !== null) {
-                    console.log('exec error: ' + error);
-                }else {
-                    generateWebPage(imgFolder, id, user, projectName, callback);
-                }
+                })
+        });
 
-            })
+
 
     }
 
@@ -182,6 +245,10 @@
                 console.log('Server listening at http://%s:%s', host, port)
 
             });
+        },
+
+        pngToJpg : function(callback){
+            pngToJpg("D:\\test", callback);
         }
 
 
