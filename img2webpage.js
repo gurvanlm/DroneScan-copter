@@ -6,6 +6,8 @@
     var express = require('express');
     var convert = require('netpbm').convert;
     var gm = require('gm');
+    var index = require('./index');
+
     var uuid = require("node-uuid");
 
     var child;
@@ -190,10 +192,16 @@
         console.log("START : " + new Date().toGMTString());
 
         var objectID = skipRender ? "95fc4f60-d5f2-11e4-b032-75d4217b9eba" : uuid.v1();
-        render(imgFolder, objectID, user, req.param("projectName"), skipRender, function(){
-            console.log("END : " + new Date().toGMTString());
-            res.send(objectID);
-        } );
+
+
+        index(function(imageFolder){
+            render(imageFolder, objectID, user, req.param("projectName"), skipRender, function(){
+                console.log("END : " + new Date().toGMTString());
+                res.send(objectID);
+            } );
+        });
+
+
     });
 
 
