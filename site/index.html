@@ -110,7 +110,7 @@
             // preload images to avoid flickering
             for (var j = 0, jl = photos.length; j<jl; j++){
                 var photo = photos[j];
-                var imageUrl = item.id + "/" + photo;
+                var imageUrl = item.id + "/photos/" + photo;
                 $("#vengeur-masque").append($("<img src='" + imageUrl + "'>"));
             }
             photoLoop = photos;
@@ -136,7 +136,7 @@
             }
             var photo = photoLoop[photoIdx];
             var item = window.global_items[slideIdx];
-            var imageUrl = item.id + "/" + photo;
+            var imageUrl = item.id + "/photos/" + photo;
             $("#preview-" + slideIdx).css("background-image", "url(" + imageUrl + ")");
         };
 
@@ -145,12 +145,13 @@
         //http://localhost:3000/listProjects
 		$.ajax({
 
-		  url: "descriptor.json", dataType:"json"
+		  url: "http://localhost:3000/listProjects", dataType:"json"
 		}).done(function( items ) {
-            window.global_items = items;
+
 			var container = $("#slide-div-content");
 			for (var i = 0, l = items.length; i<l; i++){
 				var item = items[i];
+                item.photos = JSON.parse(item.photos);
 				var itemId = item.id;
 				// https://cdn2.ps1.photosynth.net/media/77af1b81-1eac-4070-99ea-ebc78799eaa1/packet/thumbs/default/0.jpg
 				var tpl = '<div class="library-image-container" onmouseover="onMouseOver(' + i + ');" onmouseout="onMouseOut(' + i + ');">' +
@@ -158,6 +159,8 @@
                     '<h3>' + item.name + '</h3>' +
 				'</div>';
 				container.append($(tpl));
+
+                window.global_items.push(item);
 			}
 		  });
 	</script>

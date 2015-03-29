@@ -10,15 +10,14 @@
     var child;
     var app = express();
 
-    var serverPath = 'D:\\fHacktory\\server';
+    var serverPath = 'D:\\fHacktory\\DroneScan-copter\\site';
     var exportsPath = 'D:\\fHacktory\\exports';
 
-    var imgFolder = "D:\\nescafe\\photos2";
+    var imgFolder = "D:\\fHacktory\\DroneScan-copter\\photos\\fruits";
+
     var skipRender = false;
+
     var user = 'dupont';
-
-
-
 
     function render(imgFolder, id, user, projectName, skipRender, callback){
 
@@ -75,9 +74,32 @@
 
                 var path = serverPath+'\\'+id+'\\examples\\' ;
 
+
                 fs.createReadStream('item_template\\index.html').pipe(fs.createWriteStream(path+ "index.html"));
 
                 fs.rename(path+ "\\"+ id+'.0.ply.js',path + "model.ply.js",callback);
+
+                fs.mkdirSync(serverPath+'\\'+id+'\\photos');
+
+                var photosPath = [];
+
+                var files = fs.readdirSync(imgFolder);
+                var previewDone = false;
+                for (var index = 0; index < files.length; index++ ) {
+                    var file = files[index];
+                    if (file[0] !== '.') {
+                        var filePath = imgFolder + '\\' + file;
+                        if(filePath.substr(-3) == "jpg" || filePath.substr(-3) == "JPG"){
+                            fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath+'\\'+id+'\\photos\\'+file));
+                            photosPath.push(file);
+                            if(!previewDone){
+
+                                fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath+'\\'+id+'\\preview.jpg'));
+                                previewDone = true;
+                            }
+                        }
+                    }
+                }
 
 
                 // create json descriptor file
@@ -85,25 +107,11 @@
                     id: id,
                     user: user,
                     creationDate: new Date().toGMTString(),
-                    name: projectName
+                    name: projectName,
+                    photos : JSON.stringify(photosPath)
                 };
 
                 fs.writeFile(serverPath+'\\'+id+'\\descriptor.json', JSON.stringify(descriptor));
-
-
-
-
-                var files = fs.readdirSync(imgFolder);
-                for (var index = 0; index < files.length; index++ ) {
-                    var file = files[index];
-                    if (file[0] !== '.') {
-                        var filePath = imgFolder + '\\' + file;
-                       if(filePath.substr(-3) == "jpg" || filePath.substr(-3) == "JPG"){
-                           fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath+'\\'+id+'\\'+"preview.jpg"));
-
-                       }
-                    }
-                }
 
             }
 
@@ -112,15 +120,13 @@
     }
 
 
-
-    app.use(express.static(serverPath));
-    //app.use(express.static("./site"));
+    app.use(express.static("./site"));
 
     app.get('/createProject', function(req, res){
 
         console.log("START : " + new Date().toGMTString());
 
-        var objectID = skipRender ? "780b35e9a31" : uuid.v1();
+        var objectID = skipRender ? "95fc4f60-d5f2-11e4-b032-75d4217b9eba" : uuid.v1();
         render(imgFolder, objectID, user, req.param("projectName"), skipRender, function(){
             console.log("END : " + new Date().toGMTString());
             res.send(objectID);
