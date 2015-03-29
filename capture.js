@@ -26,24 +26,22 @@
                     fs.mkdirSync(folder);
                 }
 
-                var started = false;
+                drone.captureStarted = false;
 
                 drone.pngStream
                     .on('error', console.log)
                     .on('data', function (pngBuffer) {
 
-                        if(!started) {
+                        if(!drone.captureStarted) {
                             callback();
                         }
+                        drone.captureStarted = true;
 
                         if(drone.takePicture) {
                             var now =  new Date().getTime();
                             var fileName = folder + drone.id + '-' + now + '.png';
 
                             fs.writeFile(fileName, pngBuffer);
-
-
-                            started = true;
                         }
 
                     });

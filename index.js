@@ -62,8 +62,6 @@
             }
         };
 
-        console.log('DRONES', drones.length);
-
         drones[0].takeoff(function() {
             console.log('END TEST', 0);
 
