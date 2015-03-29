@@ -26,21 +26,32 @@
 		  height: 100%;
 		}
 		.library-image {
-			height: 305px;
-			width: 305px;
-			transform: scale(0.55);
+			height: 265px;
+			width: 265px;
+			/*transform: scale(0.65);*/
 			border-radius: 50%;
 			overflow: hidden;
 			background-color: transparent;
 			background-size: cover;
 			background-position: 50% 50%;
 		}
+        .library-image-container:hover {
+            transform: scale(1.1);
+        }
 		.library-image-container {
+            transform: scale(1);
+            transition: all .1s ease-in;
 			text-align: center;
 			display: inline-block;
 			overflow: hidden;
-			width: 305px;
+			width: 265px;
+            margin-right: 40px;
 		}
+        .preview-wrapper {
+            height: 265px;
+            width: 265px;
+            border-radius: 50%;
+        }
 	</style>
 </head>
 <body>
@@ -71,23 +82,79 @@
 		<h2>mes captures 3D</h2>
 	</div>
 	<div id="slider-div" style="position: absolute; width: 100%; left: 0;top: 0;">
-		<div id="slide-div-content" style="position: relative; overflow: hidden; width: 100%; height: 100%;padding-top: 130px;">
+		<div id="slide-div-content" style="position: relative; overflow: hidden; width: 100%; height: 100%;padding-top: 160px;text-align: center;">
 
 		</div>
 	</div>
 
-	<script type="text/javascript">
-		$.ajax({
-		  url: "http://localhost:3000/listProjects", dataType:"json"
-		}).done(function( items ) {
+    <div id="vengeur-masque" style="display: none;">
 
+    </div>
+
+	<script type="text/javascript">
+
+        var photoLoop = [];
+        var photoIdx = 0;
+        var slideIdx = 0;
+        var interval = -1;
+
+        onMouseOver = function(i){
+            clearSlideshow();
+            var item = window.global_items[i];
+            var photos = item.photos;
+            // debug
+            if (!photos){
+                return;
+            }
+            //photos = ["IMG_20150329_091820_434.jpg", "IMG_20150329_091823_279.jpg", "IMG_20150329_091825_633.jpg", "IMG_20150329_091828_950.jpg", "IMG_20150329_091832_486.jpg", "IMG_20150329_091835_512.jpg", "IMG_20150329_091838_235.jpg", "IMG_20150329_091841_746.jpg", "IMG_20150329_091845_383.jpg", "IMG_20150329_091848_538.jpg", "IMG_20150329_091850_727.jpg", "IMG_20150329_091853_808.jpg", "IMG_20150329_091857_685.jpg", "IMG_20150329_091900_197.jpg", "IMG_20150329_091902_678.jpg", "IMG_20150329_091909_209.jpg"];
+            // preload images to avoid flickering
+            for (var j = 0, jl = photos.length; j<jl; j++){
+                var photo = photos[j];
+                var imageUrl = item.id + "/" + photo;
+                $("#vengeur-masque").append($("<img src='" + imageUrl + "'>"));
+            }
+            photoLoop = photos;
+            slideIdx = i;
+            interval = window.setInterval(slideNext, 300);
+        };
+        onMouseOut = function(i){
+            clearSlideshow();
+        };
+
+        clearSlideshow = function(){
+            if (interval != -1){
+                window.clearInterval(interval);
+                interval = -1;
+                photoIdx = 0
+            }
+        };
+
+        slideNext = function(){
+            photoIdx++;
+            if (photoIdx > photoLoop.length - 1){
+                photoIdx = 0;
+            }
+            var photo = photoLoop[photoIdx];
+            var item = window.global_items[slideIdx];
+            var imageUrl = item.id + "/" + photo;
+            $("#preview-" + slideIdx).css("background-image", "url(" + imageUrl + ")");
+        };
+
+
+        window.global_items = [];
+        //http://localhost:3000/listProjects
+		$.ajax({
+
+		  url: "descriptor.json", dataType:"json"
+		}).done(function( items ) {
+            window.global_items = items;
 			var container = $("#slide-div-content");
 			for (var i = 0, l = items.length; i<l; i++){
 				var item = items[i];
 				var itemId = item.id;
 				// https://cdn2.ps1.photosynth.net/media/77af1b81-1eac-4070-99ea-ebc78799eaa1/packet/thumbs/default/0.jpg
-				var tpl = '<div class="library-image-container">' +
-                    '<a href="' + itemId + '/examples/index.html"><div class="library-image" style="background-image: url(' + itemId + '/preview.jpg);"></div></a>' +
+				var tpl = '<div class="library-image-container" onmouseover="onMouseOver(' + i + ');" onmouseout="onMouseOut(' + i + ');">' +
+                    '<a href="' + itemId + '/examples/index.html"><div class="preview-wrapper"><div id="preview-' + i + '" class="library-image" style="background-image: url(' + itemId + '/preview.jpg);"></div></div></a>' +
                     '<h3>' + item.name + '</h3>' +
 				'</div>';
 				container.append($(tpl));
