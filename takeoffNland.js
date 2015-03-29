@@ -1,70 +1,89 @@
-var keypress = require('keypress');
-var drones = require('./drones');
-var debug = require('./debug');
+(function() {
+    var keypress = require('keypress');
+    var debug = require('./debug');
+    var drones;
 
-var service = {};
+    var service = {};
 
-service.isStopped = false;
-
-service.land = function(drone, cb) {
-    if(debug) {
-        cb();
-    } else {
-        drone.stop();
-        drone.land(cb);
-    }
-};
-
-service.takeoff = function(drone, cb) {
     service.isStopped = false;
 
-    if(debug) {
-        setTimeout(function() {
-            cb(null);
-        }, 50);
-    } else {
+    service.init = function(newDrones) {
+        drones = newDrones;
+    };
 
-        drone.config('general:navdata_demo', 'FALSE');
+    service.land = function(client, cb) {
+        if(debug) {
+            cb();
+        } else {
+            client.stop();
+            client.land(cb);
+        }
+    };
 
-        drone.takeoff(function() {
-            console.log('DONE takeoff');
+    service.takeoff = function(client, id, cb) {
+        service.isStopped = false;
 
-            /*drone.on('navdata', function(navdata) {
-             console.log('navdata.demo.altitudeMeters', navdata.demo.altitudeMeters);
-             });*/
+        if(debug) {
+            setTimeout(function() {
+                cb(null);
+            }, 50);
+        } else {
 
-            cb(drone);
-        });
+            client.config('general:navdata_demo', 'FALSE');
 
-    }
-};
+            console.log('TAKEOFF', id);
 
-keypress(process.stdin);
+            client.takeoff(function() {
+                console.log('DONE takeoff', id);
 
-process.stdin.on('keypress', function(ch, key) {
+                client.after(5000, function() {
+                    console.log('Calibrating', id);
+                    client.calibrate(0);
+                    client.after(1000, function() {
+                        console.log('DONE calibrating', id);
+                        cb();
+                    });
+                });
+            });
 
-    if(key.name === 'space') {
-        console.log('/// ALERT STOP ///');
-        service.isStopped = true;
+        }
+    };
 
-        for (var i = 0; i < drones.length; i++) {
-            var drone = drones[i];
+    keypress(process.stdin);
 
-            drone.stop();
-            drone.land();
+    var alertStop = function(drone) {
+        drone.client.stop();
+        drone.client.land();
+    };
+
+    process.stdin.on('keypress', function(ch, key) {
+
+        var stop = function() {
+            alertStop(drones[0]);
+            alertStop(drones[1]);
+            alertStop(drones[2]);
+
+            setTimeout(function() {
+                process.exit(0);
+            }, 2000);
+        };
+
+        if(key.name === 'space') {
+            service.isStopped = true;
+
+            console.log('/// ALERT STOP ///');
+
+            stop();
         }
 
-        setTimeout(function() {
-            process.exit(0);
-        }, 1000);
-    }
+        if(key && key.ctrl && key.name == 'c') {
+            stop();
+        }
+    });
 
-    /*if(key && key.ctrl && key.name == 'c') {
-        process.stdin.pause();
-    }*/
-});
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
 
-process.stdin.setRawMode(true);
-process.stdin.resume();
+    module.exports = service;
 
-module.exports = service;
+})();

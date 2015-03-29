@@ -4,22 +4,19 @@
     'use strict';
 
     var fs = require('fs'),
-        now = new Date().getTime(),
         capturesFolder = 'captures',
-        dir = './captures/capture-' + now + '/',
-        client = require('./drone'),
-        debug = require('./debug'),
-        pngImage;
+        debug = require('./debug');
 
     module.exports = {
         init: function (drone, folder, callback) {
+
+            drone.pngStream = drone.client.getPngStream();
 
             if(debug) {
 
                 callback();
 
             } else {
-                var receivingPictures = false;
 
                 if (!fs.existsSync(capturesFolder)) {
                     fs.mkdirSync(capturesFolder);
@@ -29,44 +26,37 @@
                     fs.mkdirSync(folder);
                 }
 
-                var pngStream = drone.getPngStream();
+                var started = false;
 
-                pngStream
+                drone.pngStream
                     .on('error', console.log)
                     .on('data', function (pngBuffer) {
-                        pngImage = pngBuffer;
 
-                        if (!receivingPictures) {
-                            receivingPictures = true;
+                        if(!started) {
+                            callback();
                         }
 
-                        var now =  new Date().getTime();
-                        var fileName = dir + now + '.png';
+                        if(drone.takePicture) {
+                            var now =  new Date().getTime();
+                            var fileName = folder + drone.id + '-' + now + '.png';
 
-                        fs.writeFile(fileName, pngImage);
+                            fs.writeFile(fileName, pngBuffer);
+
+
+                            started = true;
+                        }
+
                     });
 
-                callback(drone, pngStream);
             }
 
         },
-        getCaptureFolder: function() {
-            return dir;
-        },
-        capture: function (segmentNumber, pictureNumber, callback) {
-            var now =  new Date().getTime();
-            var fileName = dir + now + '.png';
 
-            if(debug) {
-                callback();
-            } else {
-                fs.writeFile(fileName, pngImage, function (err) {
-                    if (err) {
-                        return callback(err);
-                    }
-                    return callback();
-                });
-            }
+        start : function(drone) {
+            drone.takePicture = true;
+        },
+        stop : function(drone) {
+            drone.takePicture = false;
         }
     };
 
