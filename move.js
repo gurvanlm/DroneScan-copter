@@ -1,37 +1,17 @@
 var fs = require('fs');
 var client = require('./drone');
+var debug = require('./debug');
 var takeoffNland = require('./takeoffNland');
 
-/*client
- .after(5000, function() {
- this.clockwise(0.5);
- })
- .after(3000, function() {
- this.stop();
- this.land();
- });*/
-
-
-/*client.getPngStream()
- .on('data', function(data) {
- var now = new Date().getTime();
- var fileName = './photos/' + now + '.png';
-
- fs.writeFile(fileName, data, function(err) {
- if(err) console.log(err);
- console.log(fileName + ' Saved');
- });
- });*/
-
-var normalize = function(point, scale) {
+/*var normalize = function(point, scale) {
     var norm = Math.sqrt(point.x * point.x + point.y * point.y);
     if(norm != 0) { // as3 return 0,0 for a point of zero length
         point.x = scale * point.x / norm;
         point.y = scale * point.y / norm;
     }
-};
+};*/
 
-var getPoints = function(total) {
+/*var getPoints = function(total) {
 
     var pts = [];
     var rad = 0.5;
@@ -40,8 +20,9 @@ var getPoints = function(total) {
         y: .5
     };
 
-    for (var i = 0; i <= 360; i++) {
-        var a = i * Math.PI / 180;
+    for (var i = 0; i < total; i++) {
+        var currentI = 360 / total * i;
+        var a = currentI * Math.PI / 180;
 
         var p = {
             x: Math.cos(a),
@@ -54,76 +35,84 @@ var getPoints = function(total) {
         pts.push(p);
     }
     return pts;
-};
+};*/
 
-var totalPhoto;
-var positions;
-var initPosition = {x: 0.5, y: 0.5};
-var previousPosition = {x: 0.5, y: 0.5};
-var totalDuration = 600;
-var power = 0.04;
+var totalDuration = 1000;
+var rayon = 1;
+var power = 0.2;
 
 module.exports = {
-    init: function(total) {
-        totalPhoto = total;
+    gotoNextPosition: function(client, direction, cb) {
 
-        positions = getPoints();
-        console.log('positions', positions);
-    },
+        if(debug) {
+            setTimeout(function() {
+                cb();
+            }, 50);
+        } else {
 
-    gotoPosition: function(position, cb) {
-        console.log('GOTO POSITION', position);
+            client
+                .after(0, function() {
 
-        var target = {
-            x: positions[position].x - previousPosition.x,
-            y: positions[position].y - previousPosition.y
-        };
+                    if(!takeoffNland.isStopped) {
+                        //this.front(target.y * power);
+                        //this.left(target.x * power);
+                        //console.log('MOVE power', target.y * power, target.x * power, totalDuration * rayon);
+                        console.log('GO', direction, power);
+                        this[direction](power);
+                    }
 
-        previousPosition.x = target.x;
-        previousPosition.y = target.y;
+                    /*var j = 0;
+                    for (var i = 0; i < localPicturesBySegment; i++) {
+                        setTimeout(function() {
+                            j++;
+                            console.log('TAKE PHOTO', j);
+                            pictureCB(j);
+                        }, ((totalDuration * rayon) / localPicturesBySegment) * i);
+                    }*/
 
-        client
-            .after(0, function() {
-                this.front(power * target.y);
-                this.left(power * target.x);
-                //console.log('target', target);
-            }).after(totalDuration, function() {
-                this.stop();
+                })
 
-                setTimeout(function() {
+                .after(totalDuration * rayon, function() {
+                    this.stop();
+                    console.log('MOVE COMPLETE');
                     cb();
-                }, totalDuration);
-            });
+                    /*if(!takeoffNland.isStopped) {
+                        *//*this.back(target.y * power * 2);
+                         this.right(target.x * power * 2);*//*
+
+                        this.right(target.z * power * 2);
+                    }*/
+
+                });
+
+                /*.after(totalDuration * rayon / 4, function() {
+                    this.stop();
+                })*/
+
+                /*.after(500, function() {
+                    if(!takeoffNland.isStopped) {
+                        console.log('clockwiseSpeed', clockwiseSpeed);
+                        this.clockwise(clockwiseSpeed);
+                    }
+                })
+
+                .after(clockwiseDuration / localTotalSegments, function() {
+                    this.stop();
+                    console.log('STOP');
+                    *//*if(!takeoffNland.isStopped) {
+                        this.counterClockwise(clockwiseSpeed * 2);
+                    }*//*
+                })*/
+
+                /*.after(clockwiseDuration / (localTotalSegments * 4), function() {
+                    this.stop();
+
+                    setTimeout(function() {
+                        completeCB();
+                        console.log('MOVE COMPLETE');
+                    }, waitDuration);
+                });*/
+        }
 
     }
 };
-
-
-/*function(total, cb) {
- var position = 0;
-
- var points = getPoints();
-
- //console.log('points', points);
-
- // take first picture
- var move = function() {
-
- if(takeoffNland.isStopped) {
- cb('ALERT STOPPED');
-
- } else {
- console.log('ICI', position);
- cb(null, position);
-
- setTimeout(function() {
- position++;
- if(position < total) {
- move();
- }
- }, 300);
- }
- };
-
- move();
- };*/

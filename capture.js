@@ -8,46 +8,65 @@
         capturesFolder = 'captures',
         dir = './captures/capture-' + now + '/',
         client = require('./drone'),
-        pngStream = client.getPngStream(),
+        debug = require('./debug'),
         pngImage;
 
     module.exports = {
-        init: function (callback) {
-            var receivingPictures = false;
+        init: function (drone, folder, callback) {
 
-            if (!fs.existsSync(capturesFolder)) {
-                fs.mkdirSync(capturesFolder);
+            if(debug) {
+
+                callback();
+
+            } else {
+                var receivingPictures = false;
+
+                if (!fs.existsSync(capturesFolder)) {
+                    fs.mkdirSync(capturesFolder);
+                }
+
+                if (!fs.existsSync(folder)) {
+                    fs.mkdirSync(folder);
+                }
+
+                var pngStream = drone.getPngStream();
+
+                pngStream
+                    .on('error', console.log)
+                    .on('data', function (pngBuffer) {
+                        pngImage = pngBuffer;
+
+                        if (!receivingPictures) {
+                            receivingPictures = true;
+                        }
+
+                        var now =  new Date().getTime();
+                        var fileName = dir + now + '.png';
+
+                        fs.writeFile(fileName, pngImage);
+                    });
+
+                callback(drone, pngStream);
             }
 
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir);
-            }
-
-            pngStream
-                .on('error', console.log)
-                .on('data', function (pngBuffer) {
-                    pngImage = pngBuffer;
-                    if (!receivingPictures) {
-                        console.log('STARTING TO RECEIVE PICTURES...');
-                        receivingPictures = true;
-                        callback();
-                    }
-                });
         },
         getCaptureFolder: function() {
             return dir;
         },
-        capture: function (number, callback) {
-            var fileName = dir + number + '.png';
+        capture: function (segmentNumber, pictureNumber, callback) {
+            var now =  new Date().getTime();
+            var fileName = dir + now + '.png';
 
-            fs.writeFile(fileName, pngImage, function (err) {
-                if (err) {
-                     console.log(err);
-                    return callback(err);
-                }
-                console.log('Saving picture ' + fileName);
-                return callback();
-            });
+            if(debug) {
+                callback();
+            } else {
+                fs.writeFile(fileName, pngImage, function (err) {
+                    if (err) {
+                        return callback(err);
+                    }
+                    return callback();
+                });
+            }
         }
     };
 
