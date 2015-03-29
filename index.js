@@ -1,63 +1,96 @@
 /* global console, require */
 
-(function () {
+(function() {
     'use strict';
 
-    var fs = require('fs'),
-        client = require('./drone'),
-        move = require('./move'),
+    var drones = require('./drones')(),
         capture = require('./capture'),
-        takeoffNland = require('./takeoffNland'),
-        totalPhoto = 36;
+        takeoffNland = require('./takeoffNland');
 
-    var takeoffOk = false;
-    var captureReady = false;
+    takeoffNland.init(drones);
 
-    var startMoving = function() {
+    // 52
+    //script/install
+    //script/connect "fHacktory" -p "fHacktory" -a 192.168.3.84 -d 192.168.1.1
 
-        if(takeoffOk && captureReady) {
-            console.log('FULL READY');
+    // 87
+    //script/install
+    //script/connect "fHacktory" -p "fHacktory" -a 192.168.3.85 -d 192.168.1.1
 
-            var currentPosition = 0;
-            move.init(totalPhoto);
+    //script/install
+    //script/connect "fHacktory" -p "fHacktory" -a 192.168.3.86 -d 192.168.1.1
 
-            var goNext = function() {
-                if(!takeoffNland.isStopped) {
-                    move.gotoPosition(currentPosition, function() {
+    var start = function(cb) {
+        var folder = './captures/capture-' + new Date().getTime() + '/';
 
-                        capture.capture(currentPosition, function() {
+        var endTotal = 0;
+        var tryTotal = 0;
+        var direction = 'right';
+        var end = function() {
+            endTotal++;
+            if(endTotal === drones.length) {
 
-                            if(currentPosition === totalPhoto - 1) {
-                                console.log('LAND');
+                endTotal = 0;
+                tryTotal = 0;
+                direction = direction === 'right' ? 'left' : 'right';
 
-                                takeoffNland.land(function() {
-                                    console.log('COMPLETE');
-                                    process.exit(0);
-                                });
+                console.log('MISSION SUCCESS !!!');
+                cb(folder);
+            }
+        };
 
-                            } else {
-                                currentPosition++;
-                                goNext();
-                            }
-                        });
-                    });
-                }
-            };
+        var tryMission = function() {
+            tryTotal++;
 
-            goNext();
-        }
+            console.log('tryTotal', tryTotal, '/', drones.length);
+            if(tryTotal === drones.length) {
+
+                console.log('START ALL MOVES');
+
+                drones[0].startMoving(direction, function() {
+                    end();
+                });
+
+                drones[1].startMoving(direction, function() {
+                    end();
+                });
+
+                drones[2].startMoving(direction, function() {
+                    end();
+                });
+
+            }
+        };
+
+        drones[0].takeoff(function() {
+            console.log('END TEST', 0);
+
+            capture.init(drones[0], folder, function() {
+                tryMission();
+            });
+        });
+
+        drones[1].takeoff(function() {
+            console.log('END TEST', 1);
+
+            capture.init(drones[1], folder, function() {
+                tryMission();
+            });
+        });
+
+        drones[2].takeoff(function() {
+            console.log('END TEST', 2);
+
+            capture.init(drones[2], folder, function() {
+                tryMission();
+            });
+        });
     };
 
-    takeoffNland.takeoff(function() {
-        console.log('TAKEN OFF');
-        takeoffOk = true;
-        startMoving();
-    });
+    module.exports = start;
 
-    capture.init(function () {
-        console.log('CAPTURE READY');
-        captureReady = true;
-        startMoving();
-    });
+    /*start(function(folder) {
+        console.log('folder', folder);
+    });*/
 
 }());

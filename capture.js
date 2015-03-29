@@ -4,50 +4,57 @@
     'use strict';
 
     var fs = require('fs'),
-        now = new Date().getTime(),
         capturesFolder = 'captures',
-        dir = './captures/capture-' + now + '/',
-        client = require('./drone'),
-        pngStream = client.getPngStream(),
-        pngImage;
+        debug = require('./debug');
 
     module.exports = {
-        init: function (callback) {
-            var receivingPictures = false;
+        init: function (drone, folder, callback) {
 
-            if (!fs.existsSync(capturesFolder)) {
-                fs.mkdirSync(capturesFolder);
-            }
+            drone.pngStream = drone.client.getPngStream();
 
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir);
-            }
+            if(debug) {
 
-            pngStream
-                .on('error', console.log)
-                .on('data', function (pngBuffer) {
-                    pngImage = pngBuffer;
-                    if (!receivingPictures) {
-                        console.log('STARTING TO RECEIVE PICTURES...');
-                        receivingPictures = true;
-                        callback();
-                    }
-                });
-        },
-        getCaptureFolder: function() {
-            return dir;
-        },
-        capture: function (number, callback) {
-            var fileName = dir + number + '.png';
+                callback();
 
-            fs.writeFile(fileName, pngImage, function (err) {
-                if (err) {
-                     console.log(err);
-                    return callback(err);
+            } else {
+
+                if (!fs.existsSync(capturesFolder)) {
+                    fs.mkdirSync(capturesFolder);
                 }
-                console.log('Saving picture ' + fileName);
-                return callback();
-            });
+
+                if (!fs.existsSync(folder)) {
+                    fs.mkdirSync(folder);
+                }
+
+                drone.captureStarted = false;
+
+                drone.pngStream
+                    .on('error', console.log)
+                    .on('data', function (pngBuffer) {
+
+                        if(!drone.captureStarted) {
+                            callback();
+                        }
+                        drone.captureStarted = true;
+
+                        if(drone.takePicture) {
+                            var now =  new Date().getTime();
+                            var fileName = folder + drone.id + '-' + now + '.png';
+
+                            fs.writeFile(fileName, pngBuffer);
+                        }
+
+                    });
+
+            }
+
+        },
+
+        start : function(drone) {
+            drone.takePicture = true;
+        },
+        stop : function(drone) {
+            drone.takePicture = false;
         }
     };
 

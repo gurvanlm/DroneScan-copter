@@ -1,41 +1,89 @@
-var keypress = require('keypress');
-var client = require('./drone');
+(function() {
+    var keypress = require('keypress');
+    var debug = require('./debug');
+    var drones;
 
-var service = {};
+    var service = {};
 
-service.isStopped = false;
-
-service.land = function(cb) {
-    client.stop();
-    client.land(cb);
-};
-
-service.takeoff = function(cb) {
-    client.takeoff();
     service.isStopped = false;
 
-    setTimeout(function() {
-        cb(null);
-    }, 5000);
-};
+    service.init = function(newDrones) {
+        drones = newDrones;
+    };
 
-keypress(process.stdin);
+    service.land = function(client, cb) {
+        if(debug) {
+            cb();
+        } else {
+            client.stop();
+            client.land(cb);
+        }
+    };
 
-process.stdin.on('keypress', function(ch, key) {
+    service.takeoff = function(client, id, cb) {
+        service.isStopped = false;
 
-    if(key.name === 'space') {
-        console.log('/// ALERT STOP ///');
-        service.isStopped = true;
-        client.stop();
-        client.land();
-    }
+        if(debug) {
+            setTimeout(function() {
+                cb(null);
+            }, 50);
+        } else {
 
-    if(key && key.ctrl && key.name == 'c') {
-        process.stdin.pause();
-    }
-});
+            client.config('general:navdata_demo', 'FALSE');
 
-process.stdin.setRawMode(true);
-process.stdin.resume();
+            console.log('TAKEOFF', id);
 
-module.exports = service;
+            client.takeoff(function() {
+                console.log('DONE takeoff', id);
+
+                client.after(5000, function() {
+                    console.log('Calibrating', id);
+                    client.calibrate(0);
+                    client.after(3000, function() {
+                        console.log('DONE calibrating', id);
+                        cb();
+                    });
+                });
+            });
+
+        }
+    };
+
+    keypress(process.stdin);
+
+    var alertStop = function(drone) {
+        drone.client.stop();
+        drone.client.land();
+    };
+
+    process.stdin.on('keypress', function(ch, key) {
+
+        var stop = function() {
+            alertStop(drones[0]);
+            alertStop(drones[1]);
+            alertStop(drones[2]);
+
+            setTimeout(function() {
+                process.exit(0);
+            }, 2000);
+        };
+
+        if(key.name === 'space') {
+            service.isStopped = true;
+
+            console.log('/// ALERT STOP ///');
+
+            stop();
+        }
+
+        if(key && key.ctrl && key.name == 'c') {
+            stop();
+        }
+    });
+
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+
+    module.exports = service;
+
+})();
