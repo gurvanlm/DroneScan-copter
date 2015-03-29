@@ -1,8 +1,9 @@
-(function () {
+(function() {
     'use strict';
 
     var exec = require('child_process').exec;
     var fs = require('fs');
+    var droneControl = require('./index');
     var express = require('express');
     var convert = require('netpbm').convert;
     var uuid = require("node-uuid");
@@ -19,10 +20,10 @@
 
     var user = 'dupont';
 
-    function render(imgFolder, id, user, projectName, skipRender, callback){
+    function render(imgFolder, id, user, projectName, skipRender, callback) {
 
-        if(skipRender){
-            generateWebPage(imgFolder, id,  user, projectName, callback);
+        if(skipRender) {
+            generateWebPage(imgFolder, id, user, projectName, callback);
             return;
         }
 
@@ -33,13 +34,13 @@
 
         child = exec(renderPlyCmd,
             {maxBuffer: 1024 * 500},
-            function (error, stdout, stderr) {
+            function(error, stdout, stderr) {
 
                 console.log('stdout: ' + stdout);
                 console.log('stderr: ' + stderr);
-                if (error !== null) {
+                if(error !== null) {
                     console.log('exec error: ' + error);
-                }else {
+                } else {
                     generateWebPage(imgFolder, id, user, projectName, callback);
                 }
 
@@ -48,53 +49,52 @@
     }
 
 
-
     function generateWebPage(imgFolder, id, user, projectName, callback) {
 
 
-        var cmd = 'PotreeConverter.exe --source D:\\fHacktory\\exports\\'+id+'.0.ply -o '+serverPath+'\\'+id+' -p -l 3';
+        var cmd = 'PotreeConverter.exe --source D:\\fHacktory\\exports\\' + id + '.0.ply -o ' + serverPath + '\\' + id + ' -p -l 3';
 
         console.log("generate web page cmd : " + cmd);
 
         child = exec(cmd,
 
             {
-                cwd:"D:\\fHacktory\\photos2ply\\tools\\PotreeConverter"
+                cwd: "D:\\fHacktory\\photos2ply\\tools\\PotreeConverter"
             },
 
-            function (error, stdout, stderr) {
+            function(error, stdout, stderr) {
 
 
                 console.log('stdout: ' + stdout);
                 console.log('stderr: ' + stderr);
-                if (error !== null) {
+                if(error !== null) {
                     console.log('exec error: ' + error);
                 }
 
 
-                var path = serverPath+'\\'+id+'\\examples\\' ;
+                var path = serverPath + '\\' + id + '\\examples\\';
 
 
-                fs.createReadStream('item_template\\index.html').pipe(fs.createWriteStream(path+ "index.html"));
+                fs.createReadStream('item_template\\index.html').pipe(fs.createWriteStream(path + "index.html"));
 
-                fs.rename(path+ "\\"+ id+'.0.ply.js',path + "model.ply.js",callback);
+                fs.rename(path + "\\" + id + '.0.ply.js', path + "model.ply.js", callback);
 
-                fs.mkdirSync(serverPath+'\\'+id+'\\photos');
+                fs.mkdirSync(serverPath + '\\' + id + '\\photos');
 
                 var photosPath = [];
 
                 var files = fs.readdirSync(imgFolder);
                 var previewDone = false;
-                for (var index = 0; index < files.length; index++ ) {
+                for (var index = 0; index < files.length; index++) {
                     var file = files[index];
-                    if (file[0] !== '.') {
+                    if(file[0] !== '.') {
                         var filePath = imgFolder + '\\' + file;
-                        if(filePath.substr(-3) == "jpg" || filePath.substr(-3) == "JPG"){
-                            fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath+'\\'+id+'\\photos\\'+file));
+                        if(filePath.substr(-3) == "jpg" || filePath.substr(-3) == "JPG") {
+                            fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath + '\\' + id + '\\photos\\' + file));
                             photosPath.push(file);
-                            if(!previewDone){
+                            if(!previewDone) {
 
-                                fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath+'\\'+id+'\\preview.jpg'));
+                                fs.createReadStream(filePath).pipe(fs.createWriteStream(serverPath + '\\' + id + '\\preview.jpg'));
                                 previewDone = true;
                             }
                         }
@@ -104,17 +104,16 @@
 
                 // create json descriptor file
                 var descriptor = {
-                    id: id,
-                    user: user,
+                    id          : id,
+                    user        : user,
                     creationDate: new Date().toGMTString(),
-                    name: projectName,
-                    photos : JSON.stringify(photosPath)
+                    name        : projectName,
+                    photos      : JSON.stringify(photosPath)
                 };
 
-                fs.writeFile(serverPath+'\\'+id+'\\descriptor.json', JSON.stringify(descriptor));
+                fs.writeFile(serverPath + '\\' + id + '\\descriptor.json', JSON.stringify(descriptor));
 
             }
-
         );
 
     }
@@ -122,39 +121,42 @@
 
     app.use(express.static("./site"));
 
-    app.get('/createProject', function(req, res){
+    app.get('/createProject', function(req, res) {
 
         console.log("START : " + new Date().toGMTString());
 
-        var objectID = skipRender ? "95fc4f60-d5f2-11e4-b032-75d4217b9eba" : uuid.v1();
-        render(imgFolder, objectID, user, req.param("projectName"), skipRender, function(){
-            console.log("END : " + new Date().toGMTString());
-            res.send(objectID);
-        } );
+        droneControl(function(imgFolder) {
+            render(imgFolder, objectID, user, req.param("projectName"), skipRender, function() {
+                console.log("END : " + new Date().toGMTString());
+                res.send(objectID);
+            });
+        });
+
+        //var objectID = skipRender ? "95fc4f60-d5f2-11e4-b032-75d4217b9eba" : uuid.v1();
     });
 
 
-    app.get('/listProjects', function (req, res) {
+    app.get('/listProjects', function(req, res) {
 
 
         var dirs = [];
         var files = fs.readdirSync(serverPath);
 
-        for (var index = 0; index < files.length; index++ ) {
+        for (var index = 0; index < files.length; index++) {
             var file = files[index];
-            if (file[0] !== '.') {
+            if(file[0] !== '.') {
                 var filePath = serverPath + '\\' + file;
                 var stat = fs.statSync(filePath);
-                if (stat.isDirectory()) {
+                if(stat.isDirectory()) {
                     dirs.push(file);
                 }
-                if (files.length === (index + 1)) {
+                if(files.length === (index + 1)) {
 
 
                     var descriptors = [];
 
 
-                    for(var folderIndex=0; folderIndex < dirs.length; folderIndex++ ){
+                    for (var folderIndex = 0; folderIndex < dirs.length; folderIndex++) {
 
 
                         var descriptorString = fs.readFileSync(serverPath + '\\' + dirs[folderIndex] + '\\descriptor.json', "utf8");
@@ -173,11 +175,11 @@
     module.exports = {
 
 
-        launchServer : function(){
-            var server = app.listen(3000, function () {
+        launchServer: function() {
+            var server = app.listen(3000, function() {
 
-                var host = server.address().address
-                var port = server.address().port
+                var host = server.address().address;
+                var port = server.address().port;
 
                 console.log('Server listening at http://%s:%s', host, port)
 
@@ -185,11 +187,7 @@
         }
 
 
-
     }
-
-
-
 
 
 }());

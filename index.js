@@ -89,8 +89,8 @@
 
     module.exports = start;
 
-    start(function(folder) {
+    /*start(function(folder) {
         console.log('folder', folder);
-    });
+    });*/
 
 }());
