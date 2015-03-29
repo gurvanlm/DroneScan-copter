@@ -38,8 +38,8 @@
 
                 client.after(5000, function() {
                     console.log('Calibrating', id);
-                    client.calibrate(0);
-                    client.after(3000, function() {
+                    //client.calibrate(0);
+                    client.after(0, function() {
                         console.log('DONE calibrating', id);
                         cb();
                     });
