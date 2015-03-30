@@ -94,7 +94,7 @@
             console.log("Render ply cmd : " + renderPlyCmd);
 
             child = exec(renderPlyCmd,
-                {maxBuffer: 1024 * 500},
+                {maxBuffer: 10024 * 500},
                 function (error, stdout, stderr) {
 
                     console.log('stdout: ' + stdout);
@@ -200,6 +200,10 @@
                 res.send(objectID);
             } );
         });
+        //render("D:\\fHacktory\\DroneScan-copter\\captures\\capture-1427630602550", "98dbe650-d60b-11e4-b129-cb683a8358b2", user, req.param("projectName"), skipRender, function(){
+        //            console.log("END : " + new Date().toGMTString());
+        //            res.send(objectID);
+        //        } );
 
 
     });
