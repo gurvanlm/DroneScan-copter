@@ -13,7 +13,7 @@
     var child;
     var app = express();
 
-    var serverPath = 'D:\\fHacktory\\DroneScan-copter\\site';
+    var serverPath = '.\\site';
     var exportsPath = 'D:\\fHacktory\\exports';
 
     var imgFolder = "D:\\fHacktory\\DroneScan-copter\\photos\\fruits";
@@ -194,18 +194,18 @@
         var objectID = skipRender ? "95fc4f60-d5f2-11e4-b032-75d4217b9eba" : uuid.v1();
 
 
-        index(function(imageFolder){
-            render(imageFolder, objectID, user, req.param("projectName"), skipRender, function(){
-                console.log("END : " + new Date().toGMTString());
-                res.send(objectID);
-            } );
-        });
+        // index(function(imageFolder){
+            // render(imageFolder, objectID, user, req.param("projectName"), skipRender, function(){
+                // console.log("END : " + new Date().toGMTString());
+                // res.send(objectID);
+            // } );
+        // });
         //render("D:\\fHacktory\\DroneScan-copter\\captures\\capture-1427630602550", "98dbe650-d60b-11e4-b129-cb683a8358b2", user, req.param("projectName"), skipRender, function(){
         //            console.log("END : " + new Date().toGMTString());
         //            res.send(objectID);
         //        } );
 
-
+		res.send(objectID);
     });
 
 
